@@ -1,0 +1,88 @@
+# QUESTION 1
+#  Write a stored procedure that accepts the month and year as inputs and prints the ordernumber, orderdate and status of the orders placed in that month. 
+# Example:  call order_status(2005, 11);
+use assignment;
+SELECT * FROM orders;
+
+# STORED PROCEDURES 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `order_status`(in year INT,in month INT)
+BEGIN
+select orderNumber,orderdate,status from orders where year(orderDate) = year AND month(orderDate) = month;
+END
+
+									call assignment.order_status(2003, 03);
+            
+# QUESTION 2(A)
+# . Write function that takes the customernumber as input and returns the purchase_status based on the following criteria . [table:Payments]
+# if the total purchase amount for the customer is < 25000 status = Silver, amount between 25000 and 50000, status = Gold
+# if amount > 50000 Platinum
+
+set global log_bin_trust_function_creators=1;
+set sql_safe_updates=0;
+update payments set purchase_status='silver' where amount < 25000;
+update payments set purchase_status='gold' where amount between 25000 and 50000;
+update payments set purchase_status='platinum' where amount > 50000;
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `purchase_status`(cust_no int) RETURNS varchar(30) CHARSET utf8mb4
+BEGIN
+declare cash int;
+declare purch_status varchar(30);
+select sum(amount) into cash from payments where customerNumber = cust_no;
+if cash < 25000 then set purch_status="silver";
+elseif cash between 25000 and 50000 then set purch_status="gold";
+else set purch_status = "platinum";
+end if;
+return purch_status;
+END
+
+														select assignment.purchase_status(111);
+                                    
+# QUESTION 2(B)
+# . Write a query that displays customerNumber, customername and purchase_status from customers table	
+
+SELECT * FROM CUSTOMERS;		SELECT * FROM PAYMENTS;		DESC CUSTOMERS;		DESC PAYMENTS;
+ALTER table payments add purchase_status varchar(50);
+
+        select c.customerNumber,c.customername,p.purchase_status from customers as c left join payments as p USING(customerNumber) ;
+        
+#QUESTION 3
+# Replicate the functionality of 'on delete cascade' and 'on update cascade' using triggers on movies and rentals tables.
+# Note: Both tables - movies and rentals - don't have primary or foreign keys. Use only triggers to implement the above.
+
+select * from rentals;
+select * from movies;
+
+	# 	AFTER DELETE  ---
+    CREATE DEFINER=`root`@`localhost` TRIGGER `movies_AFTER_DELETE` AFTER DELETE ON `movies` FOR EACH ROW BEGIN
+	UPDATE rentals SET movieid = NULL WHERE movieid NOT IN (SELECT distinct id from movies);
+	END
+    # 	AFTER UPDATE  ---
+    CREATE DEFINER=`root`@`localhost` TRIGGER `movies_AFTER_UPDATE` AFTER UPDATE ON `movies` FOR EACH ROW BEGIN
+	UPDATE rentals SET movieid = new.id WHERE movieid = old.id;
+	END
+
+INSERT INTO movies ( id, title, category ) Values ( 11, 'Manmadha', 'Rom/Com');
+INSERT INTO rentals ( memid, first_name, last_name, movieid ) Values ( 9, 'venky', 'mama', 11 );
+delete from movies where id = 11;
+INSERT INTO movies ( id, title, category ) Values ( 12, 'Manmadha', 'Rom/Com');
+UPDATE rentals SET movieid = 12 WHERE memid = 9;
+UPDATE movies SET id = 11 WHERE title regexp 'man';
+
+# QUESTON 4
+#  Select the first name of the employee who gets the third highest salary. [table: employee]
+select * from employee;
+select fname,salary from employee order by salary desc limit 2,1;
+
+# QUESTION 5
+# Assign a rank to each employee  based on their salary. The person having the highest salary has rank 1. [table: employee]
+
+select *,rank() over(order by salary desc) as emp_rank from employee;
+select *,dense_rank() over(order by salary desc) as emp_rank from employee;
+
+# QUESTION  6
+#Write a query that prints a list of employee names having a salary greater than $2000 per month who have been employed for less than 36 months.
+	#Sort your result by descending order of salary. [table: emp]/
+    
+select * from emp;
+
+SELECT * FROM Emp WHERE Salary > 2000 AND Hire_Date >= DATE_SUB(CURRENT_DATE, INTERVAL  36 MONTH) ORDER BY emp_no ASC;
