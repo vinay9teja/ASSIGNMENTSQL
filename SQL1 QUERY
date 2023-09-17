@@ -1,0 +1,70 @@
+show databases;
+create database assignment;
+use assignment;
+create table countries(name char(50),population int,capital char(50));
+insert into countries values('China',1383,'Beijing');
+insert into countries values('India',1326,'Delhi');
+insert into countries values('United States',324,'washington D.C.');
+insert into countries values('Indonesia',260,'Jakarta');
+insert into countries values('Brazil',209,'Brasilia');
+insert into countries values('Pakistan',193,'Islamabad');
+insert into countries values('Nigeria',187,'Abuja');
+insert into countries values('Bangladesh',163,'Dhaka');
+insert into countries values('Russia',143,'Moscow');
+insert into countries values('Mexico',128,'Mexico City');
+insert into countries values('Japan',126,'Tokyo');
+insert into countries values('Philippines',102,'Manila');
+insert into countries values('Ethiopia',101,'Addis Ababa');
+insert into countries values('Vietnam',94,'Hanoi');
+insert into countries values('Egypt',93,'Cairo');
+insert into countries values('Germany',81,'Berlin');
+insert into countries values('Iran',80,'Tehran');
+insert into countries values('Turkey',79,'Ankara');
+insert into countries values('Congo',79,'Kinshasa');
+insert into countries values('France',64,'Paris');
+insert into countries values('United Kingdom',65,'London');
+insert into countries values('Italy',60,'Rome');
+insert into countries values('South Africa',55,'Pretoria');
+insert into countries values('Myanmar',54,'Naypyidaw');
+select * from countries;
+desc countries;
+
+
+insert into countries values('Thiland',116,'Bangkok');
+insert into countries values('Libya',174,'Tripoli');
+select * from countries;
+set sql_safe_updates=0;
+update countries set capital='New Delhi' where capital='Delhi'; 
+update countries set capital='New Delhi' where name='India';
+
+alter table countries change column name country_name varchar(50);
+rename table countries to big_countries;
+select * from big_countries;
+
+
+create table product(product_id int primary key,product_name varchar(50) unique check (product_name != null),supplier_id int,foreign key (supplier_id) references suppliers(supplier_id));
+create table suppliers(supplier_id int primary key,supplier_name varchar(50),location varchar(50));
+create table stock(stock_id int primary key,product_id int,foreign key (product_id)references product(product_id),balance_stock int);
+insert into product values(123,'METAL',45),(124,'SILVER',46),(125,'PLATINUM',47),(126,'GOLD',48);
+insert into suppliers values(45,'metal_shop_demon','forest'),(46,'silver_shop_demon','lake'),(47,'platinum','river'),(48,'gold_shop_demon','station');
+insert into stock values(99,123,99),(81,124,18),(72,125,27),(63,126,36);
+select * from emp;
+
+alter table suppliers modify supplier_name varchar(50) unique not null;
+
+select * from product;
+select * from suppliers;
+select * from stock;
+update suppliers set supplier_name='platinum_shop_demon' where supplier_id=47;
+alter table emp add column deptno int;
+alter table emp drop column depno;
+desc emp;
+update emp set deptno=50 where emp_no%5=0;
+update emp set deptno=40 where emp_no%4=0;
+update emp set deptno=30 where emp_no%3=0;
+update emp set deptno=20 where emp_no%2=0;
+update emp set deptno=10 where depno is null;
+
+create unique index Empinx on emp(emp_no);
+create view emp_sal as select emp_no,first_name,last_name,salary from emp order by salary desc;
+select * from emp_sal;
